@@ -20,12 +20,12 @@ app.get('/read-file/:filename', async (req, res) => {
 });
 
 // Route to write a file
-app.post('/write-file/:filename', express.text(), async (req, res) => {
+app.post('/write-file/:filename',express.text(), async (req, res) => {
   const { filename } = req.params;
   const content = req.body;
   try {
     await writeToFile(filename, content);
-    res.send('Content written to file');
+    res.send(JSON.stringify('Content written to file'));
   } catch (error) {
     res.status(500).send('Error writing to file');
   }
@@ -39,7 +39,7 @@ async function readFromFile(filename) {
 
 async function writeToFile(filename, content) {
   const filePath = `./${filename}`;
-  await fs.writeFile(filePath, content, 'utf-8');
+  await fs.appendFile(filePath, content, 'utf-8');
 }
 
 app.listen(port, () => {
