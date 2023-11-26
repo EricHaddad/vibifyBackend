@@ -4,9 +4,35 @@ const fs = require('fs/promises');
 
 const app = express();
 const port = process.env.PORT || 4000;
+const SpotifyWebAPI = require('spotify-web-api-node');
+
+
 
 // Enable CORS for your React frontend
 app.use(cors({ origin: 'http://localhost:3000' }));
+
+
+app.post("/login", (req, res) => {
+  const code = req.body.code
+  const spotifyApi = new SpotifyWebApi({
+    redirectUri: 'http:localhost:3000',
+    clientId: '9d53bb9157d64f13bc76f0f456304b53',
+    clientSecret: 'ec8c0c96adea426f850a212c928c4bf4',
+  })
+
+  spotifyApi
+    .authorizationCodeGrant(code)
+    .then(data => {
+      res.json({
+        accessToken: data.body.access_token,
+        refreshToken: data.body.refresh_token,
+        expiresIn: data.body.expires_in,
+      })
+    })
+    .catch(err => {
+      res.sendStatus(400)
+    })
+})
 
 // Route to read a file
 app.get('/read-file/:filename', async (req, res) => {
