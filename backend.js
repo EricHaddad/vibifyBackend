@@ -60,7 +60,7 @@ async function editFile(filename, content) {
 
     const rows = fileContent.split('\n');
     const values = content.split(','); 
-    const songArtist = values.slice(0, 2).join(','); 
+    const songArtist = values[0];
 
     let rowIndex = -1;
     rows.some((row, index) => {
@@ -90,11 +90,12 @@ function replaceValuesInRow(rowString, newValues) {
   // Splits current row into it's individual pieces
   const values = rowString.split(/,\s*(?![^\[]*])/g);
   
-  for (let i = 2; i < values.length; i++) {
+  for (let i = 1; i < values.length; i++) {
     // Gets rid of brackets for scores
-    values[i] = values[i].substring(0, values[i].length - 1)
+    values[i] = values[i].substring(0, values[i].length - 2)
     // Adds user score to score list
-    values[i] += ","+ newValues[i].replace(/[\[\]]/g, '');
+    // Regular expression removes brackets and quotes from new user score
+    values[i] += ","+ newValues[i].replace(/[\[\]"]/g, '');
 
     // Fixes error where last score list has an \n appended
     values[i] = values[i].split('\n');
@@ -102,7 +103,7 @@ function replaceValuesInRow(rowString, newValues) {
       values[i] = values[i][0]
     }
     // Adds ending bracket
-    values[i] += ']';
+    values[i] += ']"';
   }
 
   const updatedRow = values.join(',');
