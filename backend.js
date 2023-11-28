@@ -11,6 +11,32 @@ const SpotifyWebAPI = require('spotify-web-api-node');
 // Enable CORS for your React frontend
 app.use(cors({ origin: 'http://localhost:3000' }));
 
+const spotifyApi = new SpotifyWebAPI({
+  clientId: 'a525da76dbe04bad9f40bc4955eafcc1',
+  clientSecret: 'c2e5e2791ae841dbb14dadc4c33c6584',
+  redirectUri: 'http://localhost:4000/callback',
+});
+
+app.get('/callback', async (req, res) => {
+  const authorizationCode = req.query.code; // Extract authorization code from query parameter
+
+  try {
+    const data = await spotifyApi.authorizationCodeGrant(authorizationCode);
+    const accessToken = data.body.access_token;
+    console.log(accessToken)
+    // Use the access token for Spotify API requests or save it for further use
+    // For example:
+    spotifyApi.setAccessToken(accessToken);
+
+    // Handle success or redirect to another page
+    // res.send('Authorization completed. Access Token: ' + accessToken);
+    res.redirect(`http://localhost:3000/?accessToken=${accessToken}`);
+  } catch (error) {
+    // Handle errors
+    res.status(500).send('Error: ' + error.message);
+  }
+});
+
 
 app.post("/login", (req, res) => {
   const code = req.body.code
@@ -119,6 +145,7 @@ function replaceValuesInRow(rowString, newValues) {
   for (let i = 1; i < values.length; i++) {
     // Gets rid of brackets for scores
     values[i] = values[i].substring(0, values[i].length - 2)
+
     // Adds user score to score list
     // Regular expression removes brackets and quotes from new user score
     values[i] += ","+ newValues[i].replace(/[\[\]"]/g, '');
